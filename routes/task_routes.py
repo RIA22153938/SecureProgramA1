@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from models import db, Task, User
+import bleach
 
 task_bp = Blueprint('task_bp', __name__)
 
@@ -10,10 +11,11 @@ def dashboard():
         return redirect(url_for('auth_bp.login'))
 
     search_query = request.args.get('search', '')
-
+    search_query = bleach.clean(search_query)
     # Vulnerable to SQL Injection (intentionally insecure)
     if search_query:
         # Using string concatenation for SQL query (intentionally insecure)
+
         tasks = Task.query.filter(Task.title.like(f'%{search_query}%'), Task.user_id == session['user_id']).all()
     else:
         tasks = Task.query.filter_by(user_id=session['user_id']).all()
