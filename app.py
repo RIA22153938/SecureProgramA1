@@ -4,13 +4,14 @@ from models import db, User, Task
 from routes.auth_routes import auth_bp
 from routes.task_routes import task_bp
 from routes.admin_routes import admin_bp
+from dotenv import load_dotenv
 
 # Create Flask application
 app = Flask(__name__)
-
+load_dotenv()
 # Hardcoded secret key (intentionally insecure)
-app.secret_key = "super_secret_key_do_not_share"
-app.config['DEBUG'] = True  # Debug mode enabled (intentionally insecure)
+app.secret_key = os.environ.get('secret') #"super_secret_key_do_not_share"
+app.config['DEBUG'] = os.getenv('FLASK_DEBUG', 'False').lower()=='true'  # Debug mode enabled (intentionally insecure)
 
 # Configure SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///task_management.db'
@@ -47,4 +48,4 @@ def create_tables():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)  # Debug mode enabled (intentionally insecure)
+    app.run(debug=False)  # Debug mode enabled (intentionally insecure)

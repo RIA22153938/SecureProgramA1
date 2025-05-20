@@ -7,7 +7,7 @@ bcrypt = Bcrypt ()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(80), nullable=False)  # Plain text password (intentionally insecure)
+    # password = db.Column(db.String(80), nullable=False)  # Plain text password (intentionally insecure)
     password_hash = db.Column(db.String(128), nullable = False)
     is_admin = db.Column(db.Boolean, default=False)
     tasks = db.relationship('Task', backref='assigned_user', lazy=True)

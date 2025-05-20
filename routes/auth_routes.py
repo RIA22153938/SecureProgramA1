@@ -1,20 +1,23 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from models import db, User
-
+import re
+#python app.py TO GET TO THE WEBSITE AHHHHHHHHHHHH
 auth_bp = Blueprint('auth_bp', __name__)
 
+is_valid_username = lambda username: bool(re.match(r'^[a-zA-Z][a-zA-Z0-9_-]{2,19}$', username))
+is_valid_password = lambda password: bool(re.match(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$', password))
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username']# if not is_valid_username(username):
         password = request.form['password']
 
         # Vulnerable to SQL Injection due to string formatting
         # Intentionally insecure: Using raw string formatting instead of parameterized queries
         user = User.query.filter_by(username=username).first()
 
-        if user:
+        if user and user.verify_password(password):
             session['user_id'] = user.id
             session['username'] = user.username
             session['is_admin'] = user.is_admin
@@ -38,6 +41,9 @@ def register():
         if user:
             flash('Username already exists!')
             return redirect(url_for('auth_bp.register'))
+        if not is_valid_username(username):
+            flash('Must start with a letter, can include, numbers, underscore and hyphens')
+            return redirect(url_for('auth_bp.registers'))
 
         new_user = User(username=username)
         new_user.set_password(password) # use the method to set hashed password
